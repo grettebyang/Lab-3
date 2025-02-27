@@ -43,6 +43,8 @@ void DBST::Rearrange(Node *r)
 		oldNode->parent = r->parent;
 		r->parent = oldNode;
 		oldNode->rightNode = r;
+		Rearrange(r);
+		exit;
 	}
 	else if (r->rightNode != nullptr && r->rightNode->NodeSize() > r->NodeSize() * c)
 	{
@@ -52,6 +54,8 @@ void DBST::Rearrange(Node *r)
 		oldNode->parent = r->parent;
 		r->parent = oldNode;
 		oldNode->leftNode = r;
+		Rearrange(r);
+		exit;
 	}
 	if (oldNode->parent != nullptr)
 	{
@@ -84,7 +88,7 @@ void Node::PrintD()
 	{
 		leftNode->PrintD();
 	}
-	cout << value;
+	cout << value << " ";
 	if (rightNode != nullptr)
 	{
 		rightNode->PrintD();
