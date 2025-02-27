@@ -117,6 +117,7 @@ void traverseInOrder(TreeNode<T>* _root, int level = 0) {
         cout << getSubtreeSize(_root->left) << " <- left subtree size || right subtree size -> " << getSubtreeSize(_root->right) << endl;
 
         traverseInOrder(_root->left, level + 1);
+        // Message To Grette: to print tree in-order: Uncomment this
         //cout << _root->data << " ";
         traverseInOrder(_root->right, level + 1);
     }
