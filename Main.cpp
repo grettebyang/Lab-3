@@ -41,71 +41,84 @@ void makeArrOfBST(TreeNode<T>* _root, std::vector<T>& listy, int& index) {
     makeArrOfBST(_root->right, listy, index);
 }
 
-template <typename T>
-void getArrFromBST(TreeNode<T>* _root, std::vector<T>& listy, int& index) {
-    if (_root == nullptr)
-        return;
+// useless: 
+//template <typename T>
+//TreeNode<T>* rebalanceTree(TreeNode<T>* node) {
+//    int nodeCount = getSubtreeSize(node) - 1;
+//    int median = nodeCount / 2;
+//    // preallocate listy to have same slots as nodeCount with 0 for placeholder
+//    vector<T> listy(nodeCount, 0);
+//    int idx = 0;
+//    makeArrOfBST(node, listy, idx);
+//
+//    // root node is median value of list
+//    TreeNode<T>* balancedTreeRoot = createNode<T>(median);
+//
+//    // erase median
+//    listy.erase(listy.begin() + median);
+//        
+//    bool lol2 = true;
+//    // good loop to avoid going out of range when you have no clue what's going on
+//    for (auto& val : listy) {
+//        insertNode(balancedTreeRoot, val, 1.0f, lol2);
+//    }
+//    return balancedTreeRoot;
+//}
 
-    makeArrOfBST(_root->left, listy, index);
-    if (index >= listy.size())
-        return;
-    listy[index++] = _root->data;
-    makeArrOfBST(_root->right, listy, index);
+template <typename T>
+TreeNode<T>* buildBalancedBSTFromSortedArray(vector<T>& arr, int start, int end) {
+    if (start > end) 
+        return nullptr;
+
+    int mid = start + (end - start) / 2;
+    TreeNode<T>* root = new TreeNode<T>(arr[mid]);
+
+    root->left = buildBalancedBSTFromSortedArray(arr, start, mid - 1);
+    root->right = buildBalancedBSTFromSortedArray(arr, mid + 1, end);
+
+    return root;
 }
 
 template <typename T>
-TreeNode<T>* rebalanceTree(TreeNode<T>* node) {
-    int nodeCount = getSubtreeSize(node) - 1;
-    vector<T> listy(nodeCount, 0);
-    int index = 0;
-    makeArrOfBST(node, listy, index);
-
-    // root node is median value (rounded down)
-    TreeNode<T>* balancedTreeNode = createNode<T>(listy[floor(nodeCount / 2)]);
-
-    for (int i = 0; i < listy.size() - 1; i++) {
-        insertNode(balancedTreeNode, listy[i], 1, true);
-    }
-    return balancedTreeNode;
-}
-
-template <typename T>
-TreeNode<T>* insertNode(TreeNode<T>* _root, T _data, float _c, bool _isBalanced) {
+TreeNode<T>* insertNode(TreeNode<T>* _root, T _data, float _c, bool& _isBalanced) {
     // base case:
     if (_root == nullptr) {
         return createNode(_data);
     }
 
-    int treeSize = floor(getSubtreeSize(_root));
-    if (getSubtreeSize(_root->left) < _c * treeSize || getSubtreeSize(_root->right) < _c * treeSize)
+    int treeSize = getSubtreeSize(_root);
+    if (getSubtreeSize(_root->left) > int(_c * treeSize) || getSubtreeSize(_root->right) > int(_c * treeSize))
         _isBalanced = false;
 
     // Special rule: Duplicates are treated as less than than _root, and therefore put as left node
     if (_data <= _root->data) {
-        //cout << "Insert l " << endl;
         _root->left = insertNode(_root->left, _data, _c, _isBalanced);
     }
     else if (_data > _root->data) {
-        //cout << "Insert r " << endl;
         _root->right = insertNode(_root->right, _data, _c, _isBalanced);
     }
 
+    // rebalance when we propagate back upwards, make a function of this garbage later (maybe lambda?)
     if (!_isBalanced) {
-        return rebalanceTree(_root);
+        int nodeCount = getSubtreeSize(_root);
+        vector<T> arr(nodeCount, 0);
+        int idx = 0;
+        makeArrOfBST(_root, arr, idx);
+        return buildBalancedBSTFromSortedArray(arr, 0, nodeCount - 1);
     }
 
     return _root;
 }
 
 template <typename T>
-void traverseInOrder(TreeNode<T>* _root) {
-    // THese 2 just for demonstration purposes, remove later
-
+void traverseInOrder(TreeNode<T>* _root, int level = 0) {
     if (_root != nullptr) {
-        traverseInOrder(_root->left);
-        //cout << _root->data << " ";
+        cout << "Level: " << level << " |";
         cout << getSubtreeSize(_root->left) << " <- left subtree size || right subtree size -> " << getSubtreeSize(_root->right) << endl;
-        traverseInOrder(_root->right);
+
+        traverseInOrder(_root->left, level + 1);
+        //cout << _root->data << " ";
+        traverseInOrder(_root->right, level + 1);
     }
 }
 
@@ -113,35 +126,20 @@ int main()
 {
     TreeNode<int>* node = createNode<int>(60);
 
-    float c = 1;
-    insertNode(node, 45, c, true);
-    insertNode(node, 30, c, true);
-    insertNode(node, 40, c, true);
-    insertNode(node, 65, c, true);
-    insertNode(node, 25, c, true);
-    insertNode(node, 85, c, true);
-    insertNode(node, 32, c, true);
-    insertNode(node, 62, c, true);
-    insertNode(node, 63, c, true);
-    insertNode(node, 64, c, true);
-    insertNode(node, 65, c, true);
+    float c = 0.5;
+    bool isBalanced = true;
+    insertNode(node, 45, c, isBalanced);
+    insertNode(node, 30, c, isBalanced);
+    insertNode(node, 40, c, isBalanced);
+    insertNode(node, 65, c, isBalanced);
+    insertNode(node, 25, c, isBalanced);
+    insertNode(node, 85, c, isBalanced);
+    insertNode(node, 32, c, isBalanced);
+    insertNode(node, 62, c, isBalanced);
+    insertNode(node, 63, c, isBalanced);
+    insertNode(node, 64, c, isBalanced);
+    insertNode(node, 65, c, isBalanced);
 
-    // exclude root with -1
-    int nodeCount = getSubtreeSize(node) - 1;
-
-    // first param is hardcoded as number of nodes
-    // This code should make the BST into a balanced one:
-
-    vector<int> listy(7, 0);
-    int index = 0;
-    makeArrOfBST(node, listy, index);
-
-    // root node is median value (rounded down)
-    TreeNode<int>* reBalancedTreeNode = createNode<int>(listy[floor(7 / 2)]);
-
-    for (int i = 0; i < listy.size() - 1; i++) {
-        insertNode(reBalancedTreeNode, listy[i], 0, true);
-    }
-
-    traverseInOrder(reBalancedTreeNode);
+    traverseInOrder(node);
 }
+
