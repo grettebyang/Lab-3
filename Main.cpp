@@ -125,22 +125,26 @@ void traverseInOrder(TreeNode<T>* _root, int level = 0) {
 
 int main()
 {
-    TreeNode<int>* node = createNode<int>(60);
-
+    // root node:
+    TreeNode<int>* node = nullptr;
+    // adjust c between 0.5 to 1
     float c = 0.5;
     bool isBalanced = true;
-    insertNode(node, 45, c, isBalanced);
-    insertNode(node, 30, c, isBalanced);
-    insertNode(node, 40, c, isBalanced);
-    insertNode(node, 65, c, isBalanced);
-    insertNode(node, 25, c, isBalanced);
-    insertNode(node, 85, c, isBalanced);
-    insertNode(node, 32, c, isBalanced);
-    insertNode(node, 62, c, isBalanced);
-    insertNode(node, 63, c, isBalanced);
-    insertNode(node, 64, c, isBalanced);
-    insertNode(node, 65, c, isBalanced);
+
+    node = insertNode(node, 45, c, isBalanced);
+    node = insertNode(node, 30, c, isBalanced);
+    node = insertNode(node, 40, c, isBalanced);
+    node = insertNode(node, 65, c, isBalanced);
+    node = insertNode(node, 25, c, isBalanced);
+    node = insertNode(node, 85, c, isBalanced);
+    node = insertNode(node, 32, c, isBalanced);
+    node = insertNode(node, 62, c, isBalanced);
+    node = insertNode(node, 63, c, isBalanced);
+    node = insertNode(node, 64, c, isBalanced);
+    node = insertNode(node, 65, c, isBalanced);
 
     traverseInOrder(node);
 }
+
+
 
