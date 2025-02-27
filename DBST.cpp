@@ -1,63 +1,69 @@
 #include "DBST.h"
+#include <iostream>
 using namespace std;
 
-void DBST::Insert(int ins)
+void DBST::Insert(int ins, Node *r)
 {
 	//Insert a node into the BST maintaining BST property
 	//Find the place to insert ins
-	if (ins < value)
+	if (ins < r->value)
 	{
-		if (leftNode == nullptr)
+		if (r->leftNode == nullptr)
 		{
-			leftNode = new DBST(ins, this, c);
-			Rearrange();
+			r->leftNode = new Node(ins, r);
+			Rearrange(r);
 		}
 		else
 		{
-			leftNode->Insert(ins);
+			Insert(ins, r->leftNode);
 		}
 	}
 	else
 	{
-		if (rightNode == nullptr)
+		if (r->rightNode == nullptr)
 		{
-			rightNode = new DBST(ins, this, c);
-			Rearrange();
+			r->rightNode = new Node(ins, r);
+			Rearrange(r);
 		}
 		else
 		{
-			rightNode->Insert(ins);
+			Insert(ins, r->rightNode);
 		}
 	}
 }
 
-void DBST::Rearrange()
+void DBST::Rearrange(Node *r)
 {
-	if (leftNode->NodeSize() > NodeSize() * c)
+	Node* oldNode = r;
+	if (r->leftNode != nullptr && r->leftNode->NodeSize() > r->NodeSize() * c)
 	{
 		//Rotate clockwise
-		DBST* oldLeftNode = leftNode;
-		leftNode = leftNode->rightNode;
-		oldLeftNode->parent = parent;
-		parent = oldLeftNode;
-		oldLeftNode->rightNode = this;
+		oldNode = r->leftNode;
+		r->leftNode = r->leftNode->rightNode;
+		oldNode->parent = r->parent;
+		r->parent = oldNode;
+		oldNode->rightNode = r;
 	}
-	else if (rightNode->NodeSize() > NodeSize() * c)
+	else if (r->rightNode != nullptr && r->rightNode->NodeSize() > r->NodeSize() * c)
 	{
 		//Rotate counterclockwise
-		DBST* oldRightNode = rightNode;
-		rightNode = rightNode->leftNode;
-		oldRightNode->parent = parent;
-		parent = oldRightNode;
-		oldRightNode->leftNode = this;
+		oldNode = r->rightNode;
+		r->rightNode = r->rightNode->leftNode;
+		oldNode->parent = r->parent;
+		r->parent = oldNode;
+		oldNode->leftNode = r;
 	}
-	if (parent != nullptr)
+	if (oldNode->parent != nullptr)
 	{
-		parent->Rearrange();
+		Rearrange(oldNode->parent);
+	}
+	else
+	{
+		root = oldNode;
 	}
 }
 
-int DBST::NodeSize()
+int Node::NodeSize()
 {
 	//returns the length of the tree from that node
 	int nodeCount = 1;
@@ -70,4 +76,17 @@ int DBST::NodeSize()
 		nodeCount += rightNode->NodeSize();
 	}
 	return nodeCount;
+}
+
+void Node::PrintD()
+{
+	if (leftNode != nullptr)
+	{
+		leftNode->PrintD();
+	}
+	cout << value;
+	if (rightNode != nullptr)
+	{
+		rightNode->PrintD();
+	}
 }
