@@ -1,150 +1,118 @@
 #include <iostream>
 #include <vector>
+#include <random>
+
+#include "DBST.h"
+#include "GBST.h"
+
 
 using namespace std;
 
-template <typename T>
-struct TreeNode {
-    T data;
-    TreeNode* left;
-    TreeNode* right;
+DBST dbst;
+TreeNode<int>* makeBigDynamicTree(int count) {
+    TreeNode<int>* node = nullptr;
 
-    TreeNode(T _data) {
-        data = _data;
-        left = nullptr;
-        right = nullptr;
+    float c = 0.5;
+    bool isBalanced = true;
+
+    for (int i = 0; i < count; i++) {
+        int randomNum = rand() % 100;
+        node = dbst.insertNode(node, randomNum, c, isBalanced);
     }
-};
 
-// total number of nodes, includes root node
-template <typename T>
-int getSubtreeSize(TreeNode<T>* root) {
-    if (!root)
-        return 0;
-    return getSubtreeSize(root->left) + getSubtreeSize(root->right) + 1;
+    return node;
 }
 
-template <typename T>
-TreeNode<T>* createNode(T _data) {
-    return new TreeNode<T>(_data);
-}
+GBST gbst;
+GBSTTreeNode<int>* makeBigGenericTree(int count) {
+    GBSTTreeNode<int>* node = nullptr;
 
-template <typename T>
-void makeArrOfBST(TreeNode<T>* _root, std::vector<T>& listy, int& index) {
-    if (_root == nullptr)
-        return;
-
-    makeArrOfBST(_root->left, listy, index);
-    if (index >= listy.size())
-        return;
-    listy[index++] = _root->data;
-    makeArrOfBST(_root->right, listy, index);
-}
-
-// useless: 
-//template <typename T>
-//TreeNode<T>* rebalanceTree(TreeNode<T>* node) {
-//    int nodeCount = getSubtreeSize(node) - 1;
-//    int median = nodeCount / 2;
-//    // preallocate listy to have same slots as nodeCount with 0 for placeholder
-//    vector<T> listy(nodeCount, 0);
-//    int idx = 0;
-//    makeArrOfBST(node, listy, idx);
-//
-//    // root node is median value of list
-//    TreeNode<T>* balancedTreeRoot = createNode<T>(median);
-//
-//    // erase median
-//    listy.erase(listy.begin() + median);
-//        
-//    bool lol2 = true;
-//    // good loop to avoid going out of range when you have no clue what's going on
-//    for (auto& val : listy) {
-//        insertNode(balancedTreeRoot, val, 1.0f, lol2);
-//    }
-//    return balancedTreeRoot;
-//}
-
-template <typename T>
-TreeNode<T>* buildBalancedBSTFromSortedArray(vector<T>& arr, int start, int end) {
-    if (start > end) 
-        return nullptr;
-
-    int mid = start + (end - start) / 2;
-    TreeNode<T>* root = new TreeNode<T>(arr[mid]);
-
-    root->left = buildBalancedBSTFromSortedArray(arr, start, mid - 1);
-    root->right = buildBalancedBSTFromSortedArray(arr, mid + 1, end);
-
-    return root;
-}
-
-template <typename T>
-TreeNode<T>* insertNode(TreeNode<T>* _root, T _data, float _c, bool& _isBalanced) {
-    // base case:
-    if (_root == nullptr) {
-        return createNode(_data);
+    for (int i = 0; i < count; i++) {
+        int randomNum = rand() % 100;
+        node = gbst.insertNode(node, randomNum);
     }
 
-    int treeSize = getSubtreeSize(_root);
-    if (getSubtreeSize(_root->left) > int(_c * treeSize) || getSubtreeSize(_root->right) > int(_c * treeSize))
-        _isBalanced = false;
-
-    // Special rule: Duplicates are treated as less than than _root, and therefore put as left node
-    if (_data <= _root->data) {
-        _root->left = insertNode(_root->left, _data, _c, _isBalanced);
-    }
-    else if (_data > _root->data) {
-        _root->right = insertNode(_root->right, _data, _c, _isBalanced);
-    }
-
-    // rebalance when we propagate back upwards, make a function of this garbage later (maybe lambda?)
-    if (!_isBalanced) {
-        int nodeCount = getSubtreeSize(_root);
-        vector<T> arr(nodeCount, 0);
-        int idx = 0;
-        makeArrOfBST(_root, arr, idx);
-        return buildBalancedBSTFromSortedArray(arr, 0, nodeCount - 1);
-    }
-
-    return _root;
-}
-
-template <typename T>
-void traverseInOrder(TreeNode<T>* _root, int level = 0) {
-    if (_root != nullptr) {
-        cout << "Level: " << level << " |";
-        cout << getSubtreeSize(_root->left) << " <- left subtree size || right subtree size -> " << getSubtreeSize(_root->right) << endl;
-
-        traverseInOrder(_root->left, level + 1);
-        // Message To Grette: to print tree in-order: Uncomment this
-        //cout << _root->data << " ";
-        traverseInOrder(_root->right, level + 1);
-    }
+    return node;
 }
 
 int main()
 {
-    // root node:
-    TreeNode<int>* node = nullptr;
-    // adjust c between 0.5 to 1
-    float c = 0.5;
-    bool isBalanced = true;
 
-    node = insertNode(node, 45, c, isBalanced);
-    node = insertNode(node, 30, c, isBalanced);
-    node = insertNode(node, 40, c, isBalanced);
-    node = insertNode(node, 65, c, isBalanced);
-    node = insertNode(node, 25, c, isBalanced);
-    node = insertNode(node, 85, c, isBalanced);
-    node = insertNode(node, 32, c, isBalanced);
-    node = insertNode(node, 62, c, isBalanced);
-    node = insertNode(node, 63, c, isBalanced);
-    node = insertNode(node, 64, c, isBalanced);
-    node = insertNode(node, 65, c, isBalanced);
+    TreeNode<int>* node = makeBigDynamicTree(1000);
 
-    traverseInOrder(node);
+    dbst.traverseInOrder(node);
+
+    cout << node->data;
+
+    cout << endl;
+
+    //GBSTTreeNode<int>* node = makeBigGenericTree(1000);
+
+    //gbst.traverseInOrder(node);
+
+    //cout << node->data;
+
+    //cout << endl;
+
+    // hardcoded:
+    // -----------------------------------------------------------------------------------------------------------------------------------------
+    // Dynamic, self-balancing BST:
+    //BST dbst;
+
+    //// root node:
+    //TreeNode<int>* node = nullptr;
+
+    //// adjust c between 0.5 to 1
+    //float c = 0.5;
+    //bool isBalanced = true;
+
+    //node = dbst.insertNode(node, 45, c, isBalanced);
+    //node = dbst.insertNode(node, 30, c, isBalanced);
+    //node = dbst.insertNode(node, 40, c, isBalanced);
+    //node = dbst.insertNode(node, 65, c, isBalanced);
+    //node = dbst.insertNode(node, 25, c, isBalanced);
+    //node = dbst.insertNode(node, 85, c, isBalanced);
+    //node = dbst.insertNode(node, 32, c, isBalanced);
+    //node = dbst.insertNode(node, 62, c, isBalanced);
+    //node = dbst.insertNode(node, 63, c, isBalanced);
+    //node = dbst.insertNode(node, 64, c, isBalanced);
+    //node = dbst.insertNode(node, 65, c, isBalanced);
+    //node = dbst.insertNode(node, 67, c, isBalanced);
+
+    //dbst.traverseInOrder(node);
+
+    //cout << node->data;
+
+    //cout << endl;
+    //cout << endl;
+    //cout << endl;
+    // 
+
+    // -----------------------------------------------------------------------------------------------------------------------------------------
+    // Generic BST:
+    //GBST gbst;
+
+    //// root node:
+    //GBSTTreeNode<int>* gnode = nullptr;
+
+    //// adjust c between 0.5 to 1
+
+    //gnode = gbst.insertNode(gnode, 45);
+    //gnode = gbst.insertNode(gnode, 30);
+    //gnode = gbst.insertNode(gnode, 40);
+    //gnode = gbst.insertNode(gnode, 65);
+    //gnode = gbst.insertNode(gnode, 25);
+    //gnode = gbst.insertNode(gnode, 85);
+    //gnode = gbst.insertNode(gnode, 32);
+    //gnode = gbst.insertNode(gnode, 62);
+    //gnode = gbst.insertNode(gnode, 63);
+    //gnode = gbst.insertNode(gnode, 64);
+    //gnode = gbst.insertNode(gnode, 65);
+    //gnode = gbst.insertNode(gnode, 67);
+    //gnode = gbst.insertNode(gnode, 68);
+
+    //gbst.traverseInOrder(gnode);
+
+    //cout << node->data;
 }
-
-
 
