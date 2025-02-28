@@ -18,9 +18,6 @@ struct GBSTTreeNode {
     }
 };
 
-
-//template <typename T>
-//static GBSTTreeNode<int>* gbtn = nullptr;
 struct GBST {
     //total number of nodes, includes root node
     template <typename T>
