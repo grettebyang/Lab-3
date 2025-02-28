@@ -1,22 +1,25 @@
 #pragma once
+#include <vector>
+using namespace std;
 
 struct Node
 {
 	int value;
-	Node* parent;
+	//Node* parent;
 	Node* leftNode;
 	Node* rightNode;
 
-	Node(int data, Node* parent)
+	Node(int data)
 	{
 		this->value = data;
-		this->parent = parent;
+		//this->parent = parent;
 		this->leftNode = nullptr;
 		this->rightNode = nullptr;
 	}
 
 	int NodeSize();
-	void PrintD();
+	void MakeBSTArray(vector<int>& listy, int& index);
+	Node* MakeBalancedBST(vector<int>& arr, int start, int end);
 };
 
 struct DBST
@@ -30,6 +33,8 @@ struct DBST
 		this->c = c;
 	}
 
-	void Insert(int ins, Node *r);
-	void Rearrange(Node *r);
+	void Insert(int ins);
+	void InsertWithin(int ins, Node* r);
+	Node* Rearrange(Node *r);
+	void PrintD();
 };

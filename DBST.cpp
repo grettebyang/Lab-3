@@ -1,8 +1,38 @@
 #include "DBST.h"
 #include <iostream>
+#include <vector>
 using namespace std;
 
-void DBST::Insert(int ins, Node *r)
+void DBST::Insert(int ins)
+{
+	//Insert a node into the BST maintaining BST property
+	//Find the place to insert ins
+	if (ins < root->value)
+	{
+		if (root->leftNode == nullptr)
+		{
+			root->leftNode = new Node(ins);
+		}
+		else
+		{
+			InsertWithin(ins, root->leftNode);
+		}
+	}
+	else
+	{
+		if (root->rightNode == nullptr)
+		{
+			root->rightNode = new Node(ins);
+		}
+		else
+		{
+			InsertWithin(ins, root->rightNode);
+		}
+	}
+	root = Rearrange(root);
+}
+
+void DBST::InsertWithin(int ins, Node* r)
 {
 	//Insert a node into the BST maintaining BST property
 	//Find the place to insert ins
@@ -10,61 +40,41 @@ void DBST::Insert(int ins, Node *r)
 	{
 		if (r->leftNode == nullptr)
 		{
-			r->leftNode = new Node(ins, r);
-			Rearrange(r);
+			r->leftNode = new Node(ins);
 		}
 		else
 		{
-			Insert(ins, r->leftNode);
+			InsertWithin(ins, r->leftNode);
 		}
 	}
 	else
 	{
 		if (r->rightNode == nullptr)
 		{
-			r->rightNode = new Node(ins, r);
-			Rearrange(r);
+			r->rightNode = new Node(ins);
 		}
 		else
 		{
-			Insert(ins, r->rightNode);
+			InsertWithin(ins, r->rightNode);
 		}
 	}
+	r = Rearrange(r);
 }
 
-void DBST::Rearrange(Node *r)
+Node* DBST::Rearrange(Node *r)
 {
-	Node* oldNode = r;
-	if (r->leftNode != nullptr && r->leftNode->NodeSize() > r->NodeSize() * c)
+	if ((r->leftNode != nullptr && r->leftNode->NodeSize() > r->NodeSize() * c) || (r->rightNode != nullptr && r->rightNode->NodeSize() > r->NodeSize() * c))
 	{
-		//Rotate clockwise
-		oldNode = r->leftNode;
-		r->leftNode = r->leftNode->rightNode;
-		oldNode->parent = r->parent;
-		r->parent = oldNode;
-		oldNode->rightNode = r;
-		Rearrange(r);
-		exit;
+		cout << "Rearrange " << r->value << "\n";
+		int nodeCount = r->NodeSize();
+		vector<int> arr(nodeCount, 0);
+		int idx = 0;
+		r->MakeBSTArray(arr, idx);
+		Node* newRoot = r->MakeBalancedBST(arr, 0, nodeCount - 1);
+		cout << "New Root: " << newRoot->value << "\n";
+		return newRoot;
 	}
-	else if (r->rightNode != nullptr && r->rightNode->NodeSize() > r->NodeSize() * c)
-	{
-		//Rotate counterclockwise
-		oldNode = r->rightNode;
-		r->rightNode = r->rightNode->leftNode;
-		oldNode->parent = r->parent;
-		r->parent = oldNode;
-		oldNode->leftNode = r;
-		Rearrange(r);
-		exit;
-	}
-	if (oldNode->parent != nullptr)
-	{
-		Rearrange(oldNode->parent);
-	}
-	else
-	{
-		root = oldNode;
-	}
+	return r;
 }
 
 int Node::NodeSize()
@@ -82,15 +92,43 @@ int Node::NodeSize()
 	return nodeCount;
 }
 
-void Node::PrintD()
+void DBST::PrintD()
+{
+	int nodeCount = root->NodeSize();
+	vector<int> arr(nodeCount, 0);
+	int idx = 0;
+	root->MakeBSTArray(arr, idx);
+	for (int i = 0; i < nodeCount; i++)
+	{
+		cout << arr[i] << " ";
+	}
+}
+
+void Node::MakeBSTArray(vector<int>& listy, int& index)
 {
 	if (leftNode != nullptr)
 	{
-		leftNode->PrintD();
+		leftNode->MakeBSTArray(listy, index);
 	}
-	cout << value << " ";
+	if (index >= listy.size())
+		return;
+	listy[index++] = value;
 	if (rightNode != nullptr)
 	{
-		rightNode->PrintD();
+		rightNode->MakeBSTArray(listy, index);
 	}
+}
+
+Node* Node::MakeBalancedBST(vector<int>& arr, int start, int end)
+{
+	if (start > end)
+		return nullptr;
+
+	int mid = start + (end - start) / 2;
+	Node* root = new Node(arr[mid]);
+
+	root->leftNode = MakeBalancedBST(arr, start, mid - 1);
+	root->rightNode = MakeBalancedBST(arr, mid + 1, end);
+
+	return root;
 }
